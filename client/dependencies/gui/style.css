@@ -1,0 +1,200 @@
+html, body {
+    font-size: clamp(0px, 1.4vw, 27px);
+}
+
+.logo {
+    position: absolute;
+    left: 50vw;
+    top: 7dvh;
+    transform: translate(-50%, -50%);
+    max-height: 10dvh;
+}
+
+.app-container-border-box {
+    position: absolute;
+    overflow: hidden;
+    left: 40vw;
+    top: 50dvh;
+    transform: translate(-50%, -50%);
+    width: 70vw;
+    height: 70dvh;
+}
+
+.app-container {
+    position: absolute;
+    display: flex;
+    flex-direction: column;
+    gap: 5dvh;
+    align-items: center;
+    overflow-y: scroll;
+    padding-top: 5dvh;
+    padding-bottom: 5dvh;
+    padding-left: 15px;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%);
+    width: 70vw;
+    height: 60dvh;
+}
+
+.app-box {
+    width: 95%;
+    height: 40%;
+    flex-shrink: 0;
+    position: relative;
+    overflow: auto;
+    box-shadow: 1dvh 1dvh .8dvh rgba(0,0,0,0.5);
+    transition: transform .3s ease, box-shadow .3s ease;
+}
+
+.app-box.hover {
+    transform: scale(1.02) translate3d(0, -.5dvh, 0);
+    box-shadow: 1dvh 1.2dvh 1.2dvh rgba(0,0,0,0.4);
+}
+
+.app-icon-container {
+    height: 100%;
+    width: 25%;
+    border-right: black solid .5dvh;
+    position: absolute;
+    left: 0%;
+    top: 0%;
+    z-index: 5;
+}
+
+.app-icon {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%);
+    max-width: 11vw;
+    max-height: 14dvh;
+}
+
+.app-info-container {
+    position: absolute;
+    left: 25%;
+    top: 0%;
+    width: 75%;
+    height: 100%;
+    box-sizing: border-box;
+    background-color: #f7f7f7;
+    transition: background-color .5s ease;
+}
+
+.app-title {
+    position: absolute;
+    left: 27.25%;
+    top: 6%;
+    height: 15%;
+    display: flex;
+    gap: 1vw;
+    align-items: center;
+    white-space: nowrap;
+    transform: translateZ(0);
+}
+
+.app-description {
+    position: absolute;
+    left: 27.25%;
+    top: 25%;
+    max-height: 75%;
+    max-width: 70.5%;
+}
+
+.filter-sort-container {
+    position: absolute;
+    height: 70dvh;
+    width: 15vw;
+    right: 5vw;
+    top: 50dvh;
+    transform: translateY(-50%);
+    overflow: hidden;
+}
+
+.search-box {
+    position: relative;
+    width: 100%;
+    height: 15%;
+    border-bottom: black .5dvh solid;
+    overflow-y: auto;
+    box-sizing: border-box;
+    padding: 1dvh .8vw;
+}
+
+.search-type-box {
+    position: relative;
+    left: 50%;
+    top: 25%;
+    transform: translate(-50%, -50%);
+    width: 80%;
+    max-height: 30%;
+    outline: .2dvh black solid;
+    font-size: clamp(0px, 1vw, 19px);
+
+}
+
+.filter-box {
+    width: 100%;
+    height: 50%;
+    overflow-y: auto;
+    box-sizing: border-box;
+    padding: 1dvh .8vw;
+}
+
+.sort-box {
+    position: absolute;
+    bottom: 0%;
+    width: 100%;
+    height: 35%;
+    border-top: black .5dvh solid;
+    box-sizing: border-box;
+    padding: 1dvh .8vw;
+    overflow-y: auto;
+}
+
+.download-button {
+    width: 10vw;
+    height: 8dvh;
+    position: absolute;
+    top: 92.5dvh;
+    left: 50vw;
+    transform: translate(-50%, -50%);
+    font-size: inherit;
+}
+
+.ubuntu-regular {
+    font-family: "Ubuntu", sans-serif;
+    font-weight: 400;
+    font-style: normal;
+}
+
+.green-background {
+    background-color: rgba(0, 255, 0, 0.229);
+}
+
+.curved-border {
+    border: black .5dvh solid;
+    border-radius: 2vw;
+}
+
+.curved-border-less {
+    border: black .5dvh solid;
+    border-radius: 1vw;
+}
+
+.larger-text {
+    font-size: 1.5em;
+}
+
+.smaller-text {
+    font-size: .72em;
+}
+
+.larger-element {
+    transform: scale(1.5)
+}
+
+.no-transition {
+    transition: none !important;
+}
