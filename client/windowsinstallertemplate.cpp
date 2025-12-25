@@ -87,9 +87,13 @@ int wmain(int argc, wchar_t* argv[]) {
 
             if(install_app(name, package_id, admin)) {
 
+                std::cout << name << " Installed Successfully!" << std::endl;
+
                 return "\"" + name + " Installed Successfully!\"";
 
             } else {
+
+                std::cout << name << " Failed to Install." << std::endl;
 
                 return "\"" + name + " Failed to Install.\"";
             }
@@ -99,6 +103,10 @@ int wmain(int argc, wchar_t* argv[]) {
     //create a function allowing the javascript to get the appinfo
     w.bind("getAppInfo", 
         [appinfo = appinfo.dump()](std::string a=""){return appinfo;}
+    );
+
+    w.bind("closeApp", 
+        [&w](std::string a=""){w.terminate();return "";}
     );
 
     //open the html file python puts in the string

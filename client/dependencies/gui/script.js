@@ -204,7 +204,7 @@ appcontainer.addEventListener("scroll", function() {
 
 
 //get the form information
-document.getElementById("appform").addEventListener("submit", e => {
+document.getElementById("appform").addEventListener("submit", async e => {
 
     e.preventDefault();
 
@@ -212,9 +212,11 @@ document.getElementById("appform").addEventListener("submit", e => {
 
     applist = formdata.getAll("apps")
 
-    applist.forEach(app => {
-        downloadApp(app).then(s => console.log(s))
-    })
+    for (const app of applist) {
+        await downloadApp(app);
+    }
+
+    setTimeout(closeApp, 5000);
 
 })
 
