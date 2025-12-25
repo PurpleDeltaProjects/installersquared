@@ -6,7 +6,7 @@ import os
 
 command = "g++ -o InstallerSquared windowsinstaller.cpp dependencies/json11.cpp dependencies/icon.o -municode -lwinhttp -ladvapi32 -lole32 -lshell32 -lshlwapi -luser32 -lversion"
 
-url = "127.0.0.1"
+url = "installersquared.netlify.app"
 
 #open all files
 

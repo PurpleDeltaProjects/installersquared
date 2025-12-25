@@ -274,7 +274,7 @@ json11::Json get_appinfo() {
 
     const wchar_t* serverdomain = L"{{URL}}";
 
-    const wchar_t* serverpath = L"/appinfo.json";
+    const wchar_t* serverpath = L"/data/appinfo.json";
 
     //this returning an empty string wont make the rest of the function fail
     std::string jsondata = https_get(serverdomain, serverpath);

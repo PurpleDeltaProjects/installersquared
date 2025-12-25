@@ -28,7 +28,7 @@ function fillappcontainer() {
         let string = `\n\n                    <div class="app-box curved-border" id="app-box-${appid}">
 
                         <div class="app-icon-container">
-                            <img src="https://{{URL}}/static/images/appicons/${appcategory}-icon.webp" class="app-icon">
+                            <img src="https://{{URL}}/data/images/appicons/${appcategory}-icon.webp" class="app-icon">
                         </div>
 
                         <label for="checkbox-${appid}" class="app-info-container ubuntu-regular"></label>
