@@ -11,7 +11,7 @@ InstallerSquared is an application that helps you to find, download, and install
 ## Overview
 This repository contains:
 
-- `website/` - The site which contains the download for the application, as well as hosts the data the client uses to install apps.
+- `website/` - The site which contains the download for the application (Coming Soon), as well as hosts the data the client uses to install apps.
 - `client/` - The code for the client itself, along with a few python scripts that helped with the development of it.
 
 ## Requirements

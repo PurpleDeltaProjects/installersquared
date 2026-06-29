@@ -15,51 +15,65 @@
 
     <body>
 
-        <img class="logo" src="https://{{URL}}/data/images/installersquaredicons/installersquaredlogo.png">
+        <div id="appselection" class="hidden">
 
-        <form id="appform" class="ubuntu-regular">
-        
-            <div class="app-container-border-box curved-border">
-                <div class="app-container" id="app-container">
+            <img class="logo" src="https://{{URL}}/data/images/installersquaredicons/installersquaredlogo.png">
+
+            <form id="appform" class="ubuntu-regular">
+            
+                <div class="app-container-border-box curved-border">
+                    <div class="app-container" id="app-container">
+                    </div>
                 </div>
+
+                <input type="submit" id="download-button" class="download-button curved-border-less ubuntu-regular" value="Download" disabled>
+
+            </form>
+
+            <div class="filter-sort-container curved-border ubuntu-regular">
+
+                <div class="search-box">
+                    Search for: <br>
+                    <input type="text" class="search-type-box ubuntu-regular" id="searchbar">
+                </div>
+
+                <div class="filter-box">
+                    Filter by: <br>
+                    <span class="smaller-text" id="filter-options">
+                        <input type="radio" name="filter" value="All" id="filter-All" checked>
+                        <label for="filter-All"> All </label> <br>
+                    </span>
+                </div>
+
+                <div class="sort-box">
+                    Sort by: <br>
+                    <span class="smaller-text" id="sort-options">
+                        <input type="radio" name="sort" value="PopularityH-L" id="sort-PopularityH-L" checked>
+                        <label for="sort-PopularityH-L"> Popularity (High to Low)</label> <br>
+
+                        <input type="radio" name="sort" value="PopularityL-H" id="sort-PopularityL-H">
+                        <label for="sort-PopularityL-H"> Popularity (Low to High)</label> <br>
+
+                        <input type="radio" name="sort" value="AlphabeticalA-Z" id="sort-AlphabeticalA-Z">
+                        <label for="sort-AlphabeticalA-Z"> Alphabetical (A to Z)</label> <br>
+
+                        <input type="radio" name="sort" value="AlphabeticalZ-A" id="sort-AlphabeticalZ-A">
+                        <label for="sort-AlphabeticalZ-A"> Alphabetical (Z to A)</label> <br>
+                    </span>
+                </div>
+
             </div>
 
-            <input type="submit" id="download-button" class="download-button curved-border-less ubuntu-regular" value="Download" disabled>
+        </div>
 
-        </form>
+        <div id="downloadscreen" class="hidden">
+            <img class="logo" src="https://{{URL}}/data/images/installersquaredicons/installersquaredlogo.png">
+            
+            <div id="downloadbox" class="messagebox curved-border ubuntu-regular larger-text centered-text"></div>
+        </div>
 
-        <div class="filter-sort-container curved-border ubuntu-regular">
-
-            <div class="search-box">
-                Search for: <br>
-                <input type="text" class="search-type-box ubuntu-regular" id="searchbar">
-            </div>
-
-            <div class="filter-box">
-                Filter by: <br>
-                <span class="smaller-text" id="filter-options">
-                    <input type="radio" name="filter" value="All" id="filter-All" checked>
-                    <label for="filter-All"> All </label> <br>
-                </span>
-            </div>
-
-            <div class="sort-box">
-                Sort by: <br>
-                <span class="smaller-text" id="sort-options">
-                    <input type="radio" name="sort" value="PopularityH-L" id="sort-PopularityH-L" checked>
-                    <label for="sort-PopularityH-L"> Popularity (High to Low)</label> <br>
-
-                    <input type="radio" name="sort" value="PopularityL-H" id="sort-PopularityL-H">
-                    <label for="sort-PopularityL-H"> Popularity (Low to High)</label> <br>
-
-                    <input type="radio" name="sort" value="AlphabeticalA-Z" id="sort-AlphabeticalA-Z">
-                    <label for="sort-AlphabeticalA-Z"> Alphabetical (A to Z)</label> <br>
-
-                    <input type="radio" name="sort" value="AlphabeticalZ-A" id="sort-AlphabeticalZ-A">
-                    <label for="sort-AlphabeticalZ-A"> Alphabetical (Z to A)</label> <br>
-                </span>
-            </div>
-
+        <div id="messagescreen" class="hidden">
+            <div id="messagebox" class="messagebox curved-border ubuntu-regular larger-text"></div>
         </div>
 
         <script></script>

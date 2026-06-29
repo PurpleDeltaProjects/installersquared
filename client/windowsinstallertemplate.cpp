@@ -7,6 +7,7 @@
 #include <algorithm>
 #include <filesystem>
 #include <functional>
+#include <thread>
 #include <windows.h>
 #include <json11.hpp>
 #include <winhttp.h>
@@ -25,16 +26,24 @@ json11::Json get_appinfo();
 
 bool install_app(std::string name, std::string package_id, bool isadmin);
 
+void webviewsetup(json11::Json& appinfo, std::string mode, webview::webview& w);
+
 
 
 int wmain(int argc, wchar_t* argv[]) {
+
+    //creates the webview object
+    webview::webview w(true, nullptr);
 
     //if the app is not running with admin permissions:
     if(!check_admin()) {
         //open the app but with admin permissions. if it fails to open, print a message
         if((INT_PTR)ShellExecuteW(NULL, L"runas", argv[0], NULL, NULL, SW_SHOWNORMAL) < 33) {
-            std::cout << "Administrator permissions required. Please reopen the application and press yes on the pop-up.\nExiting...";
-            Sleep(5000);
+            
+            std::string mode = "Error: Administrator permissions required. Please reopen the application and press yes on the pop-up. Exiting...";
+            auto placeholder = json11::Json();
+            webviewsetup(placeholder, mode, w);
+            w.run();
         }
         return 1;
     }
@@ -43,8 +52,10 @@ int wmain(int argc, wchar_t* argv[]) {
     auto appinfo = get_appinfo();
 
     if (appinfo.is_null()) {
-        std::cout << "Data from the server was unable to be accessed.\nPlease try again later.\nExiting...";
-        Sleep(5000);
+        std::string mode = "Error: Data from the server was unable to be accessed. Please try again later. Exiting...";
+        auto placeholder = json11::Json();
+        webviewsetup(placeholder, mode, w);
+        w.run();
         return 3;
     }
 
@@ -56,75 +67,16 @@ int wmain(int argc, wchar_t* argv[]) {
         return (jsonmap.find(app) == jsonmap.end());
     }), applist.end());
 
-
-
-    //gui mode string
-    const std::string html = std::string("data:text/html,") + R"({{HTML}})";
-
-    //create mode string for use in js
-    std::string mode;
-
-    //create the gui
-    webview::webview w(true, nullptr);
-    w.set_title("InstallerSquared");
-    w.set_size(1280, 720, WEBVIEW_HINT_NONE);
-
-    //allow the javascript to know which mode to run
-    w.bind("getMode", [&mode](std::string a=""){return mode;});
-
-    //allow the javascript to run apps
-    w.bind("downloadApp", 
-        [&appinfo](std::string appname){
-
-            //remove the [" and "] from the returned appname
-            std::string app = appname.substr(2, appname.size() - 4);
-
-            std::string name = appinfo[app]["name"].string_value();
-
-            std::string package_id = appinfo[app]["package-id"].string_value();
-
-            bool admin = !appinfo[app]["no-admin"].bool_value();
-
-            if(install_app(name, package_id, admin)) {
-
-                std::cout << name << " Installed Successfully!" << std::endl;
-
-                return "\"" + name + " Installed Successfully!\"";
-
-            } else {
-
-                std::cout << name << " Failed to Install." << std::endl;
-
-                return "\"" + name + " Failed to Install.\"";
-            }
-            
-        });
-
-    //create a function allowing the javascript to get the appinfo
-    w.bind("getAppInfo", 
-        [appinfo = appinfo.dump()](std::string a=""){return appinfo;}
-    );
-
-    w.bind("closeApp", 
-        [&w](std::string a=""){w.terminate();return "";}
-    );
-
-    //open the html file python puts in the string
-    w.navigate(html);
-
     //choose mode based on if the applist in app exists
-    if (applist.empty()) {
-        mode = "dynamic";
-    } else {
-        mode = "static";
-    }
+    std::string mode = (applist.empty()) ? "dynamic" : "static";
+
+    webviewsetup(appinfo, mode, w);
 
     w.run();
 
     return 0;
     
 }
-
 
 
 //this function checks if the current instance of the application is running as administrator
@@ -150,7 +102,6 @@ bool check_admin() {
     return elevated;
 
 }
-
 
 
 //this function finds the payload that contains the applist inside the executable, and returns it in vector form
@@ -203,7 +154,6 @@ std::vector<std::string> get_applist(const wchar_t* path) {
     return applist;
 
 }
-
 
 
 //this function returns the response from a server as a string, from its url
@@ -275,7 +225,6 @@ std::string https_get(const wchar_t* domain, const wchar_t* path, const INTERNET
 }
 
 
-
 //this function gets the app info from the server 
 //and then returns a json object of the data in it, or null if there is an error
 json11::Json get_appinfo() {
@@ -294,6 +243,7 @@ json11::Json get_appinfo() {
     return appinfo; //if json::parse fails, it will return null here, or the parsed json if it works
 
 }
+
 
 //this function installs the app with winget.
 //needs the name of the app, its id, and whether it needs admin or not
@@ -432,3 +382,56 @@ bool install_app(std::string name, std::string package_id, bool admin) {
 
 }
 
+
+//this function sets up the webview gui
+void webviewsetup(json11::Json& appinfo, std::string mode, webview::webview& w) {
+
+    //gui mode string
+    const std::string html = std::string("data:text/html,") + R"({{HTML}})";
+
+    //create the gui
+    w.set_title("InstallerSquared");
+    w.set_size(1280, 720, WEBVIEW_HINT_NONE);
+
+    //allow the javascript to know which mode to run
+    w.bind("getMode", [mode](std::string a=""){return "\""+ mode + "\"";});
+
+    //allow the javascript to run apps
+    w.bind("downloadApp", 
+        [&appinfo, &w](std::string appname){
+
+            //remove the [" and "] from the returned appname
+            std::string app = appname.substr(2, appname.size() - 4);
+
+            std::string name = appinfo[app]["name"].string_value();
+
+            std::string package_id = appinfo[app]["package-id"].string_value();
+
+            bool admin = !appinfo[app]["no-admin"].bool_value();
+
+            std::thread([&w, admin, name, package_id]() {
+                bool success = install_app(name, package_id, admin); 
+                w.dispatch([&w, success]() {
+                    w.eval("complete = true");
+                    w.eval(std::string("success = ") + std::string((success) ? "true" : "false"));
+                });
+                
+            }).detach();
+
+            return "";
+            
+        });
+
+    //create a function allowing the javascript to get the appinfo
+    w.bind("getAppInfo", 
+        [appinfo = appinfo.dump()](std::string a=""){return appinfo;}
+    );
+
+    w.bind("closeApp", 
+        [&w](std::string a=""){w.terminate();return "";}
+    );
+
+    //open the html file python puts in the string
+    w.navigate(html);
+
+}

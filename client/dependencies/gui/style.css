@@ -10,6 +10,16 @@ html, body {
     max-height: 10dvh;
 }
 
+.messagebox {
+    position: absolute;
+    left: 50vw;
+    top: 50dvh;
+    transform: translate(-50%, -50%);
+    width: 50vw;
+    height: 50dvh;
+    padding: 3vw;
+}
+
 .app-container-border-box {
     position: absolute;
     overflow: hidden;
@@ -191,8 +201,16 @@ html, body {
     font-size: .72em;
 }
 
+.centered-text {
+    text-align: center;
+}
+
 .larger-element {
     transform: scale(1.5)
+}
+
+.hidden {
+    display: none !important;
 }
 
 .no-transition {
