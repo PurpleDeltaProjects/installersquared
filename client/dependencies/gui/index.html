@@ -26,7 +26,11 @@
                     </div>
                 </div>
 
-                <input type="submit" id="download-button" class="download-button curved-border-less ubuntu-regular" value="Download" disabled>
+                <div class="download-button-box">
+                    <input type="submit" id="download-button" class="download-button curved-border-less ubuntu-regular" value="Download" disabled>
+                    <input type="submit" id="installer-button" class="download-button curved-border-less ubuntu-regular" value="Create Installer" disabled>
+                </div>
+                
 
             </form>
 
@@ -48,13 +52,7 @@
                 <div class="sort-box">
                     Sort by: <br>
                     <span class="smaller-text" id="sort-options">
-                        <input type="radio" name="sort" value="PopularityH-L" id="sort-PopularityH-L" checked>
-                        <label for="sort-PopularityH-L"> Popularity (High to Low)</label> <br>
-
-                        <input type="radio" name="sort" value="PopularityL-H" id="sort-PopularityL-H">
-                        <label for="sort-PopularityL-H"> Popularity (Low to High)</label> <br>
-
-                        <input type="radio" name="sort" value="AlphabeticalA-Z" id="sort-AlphabeticalA-Z">
+                        <input type="radio" name="sort" value="AlphabeticalA-Z" id="sort-AlphabeticalA-Z" checked>
                         <label for="sort-AlphabeticalA-Z"> Alphabetical (A to Z)</label> <br>
 
                         <input type="radio" name="sort" value="AlphabeticalZ-A" id="sort-AlphabeticalZ-A">

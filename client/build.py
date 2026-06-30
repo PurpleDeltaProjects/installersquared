@@ -4,7 +4,7 @@ from urllib.parse import quote
 
 import os
 
-command = "g++ -o InstallerSquared windowsinstaller.cpp dependencies/json11.cpp dependencies/icon.o -static -static-libgcc -static-libstdc++ -municode -lwinhttp -ladvapi32 -lole32 -lshell32 -lshlwapi -luser32 -lversion"
+command = "g++ -o InstallerSquared windowsinstaller.cpp dependencies/json11.cpp dependencies/icon.o -mwindows -static -static-libgcc -static-libstdc++ -municode -lwinhttp -ladvapi32 -lole32 -luuid -lshell32 -lshlwapi -luser32 -lversion"
 
 url = "installersquared.netlify.app"
 

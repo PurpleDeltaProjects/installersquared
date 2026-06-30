@@ -6,7 +6,7 @@ InstallerSquared is an application that helps you to find, download, and install
 - Choose from a large selection of applications with a graphical user interface.
 - Search for, sort, and filter to find applications quickly.
 - Install all chosen applications with one click.
-- Create installers that install all chosen apps when run, and can be reused and shared with others. (Coming Soon)
+- Create installers that install all chosen apps when run, and can be reused and shared with others. 
 
 ## Overview
 This repository contains:
@@ -23,4 +23,5 @@ This repository contains:
 - Python 3 (for the build script)
 - MinGW (g++) installed and in PATH
 - [webview/webview](https://github.com/webview/webview)
+- [portable-file-dialogs](https://github.com/samhocevar/portable-file-dialogs)
 - [Json11](https://github.com/dropbox/json11) with json11.cpp placed in the dependencies folder

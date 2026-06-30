@@ -1,4 +1,4 @@
-let appinfo, applist, appcontainer, mode, success, complete
+let appinfo, applist, apps, appcontainer, mode, installresolve;
 
 let appcategories = []
 
@@ -7,6 +7,46 @@ let downloadscreen = document.getElementById("downloadscreen");
 let messagescreen = document.getElementById("messagescreen");
 
 let downloadbox = document.getElementById("downloadbox");
+
+function delay(n) {
+    return new Promise(resolve => {
+        setTimeout(resolve, n*1000);
+    })
+}
+
+async function downloadapps(applist) {
+    let progress = " (0/" + (applist.length).toString() + ")"
+
+    //download every app in the gathered applist
+    for (let i=0; i<applist.length; i++) {
+
+        let app = applist[i];
+        let appname = appinfo[app]["name"];
+                    
+        let text = "Installing: " + appname + progress;
+        downloadbox.textContent = text;
+
+        progress = " (" + (i+1).toString() + "/" + (applist.length).toString() + ")";
+        await downloadApp(app)
+
+        const installpromise = new Promise(resolve => {
+            installresolve = resolve;
+        });
+
+        let success = await installpromise;
+
+        if (success) {
+            text = appname + " installed successfully!" + progress;
+        } else {
+            text = appname + " failed to install." + progress;
+        }
+
+        downloadbox.textContent = text;
+
+        await delay(2);
+
+    }
+}
 
 getMode().then(function(modedata) {
     mode = modedata
@@ -20,21 +60,20 @@ getMode().then(function(modedata) {
         setTimeout(closeApp, 5000);
     }
 
-    getAppInfo()
-    .then(function(data) {
+getAppInfo().then(async function(data) {
+
+        appinfo = data;
         if (mode == "dynamic") {
 
-            appinfo = data
-
-            applist = Object.keys(appinfo);
+            apps = Object.keys(appinfo);
 
             appcontainer = document.getElementById("app-container");
 
-            applist.sort((a,b) =>  appinfo[b]["popularity"] - appinfo[a]["popularity"])
+            apps.sort();
 
             function fillappcontainer() {
 
-                applist.forEach(appid => {
+                apps.forEach(appid => {
 
                     let appname = appinfo[appid]["name"];
 
@@ -72,7 +111,7 @@ getMode().then(function(modedata) {
 
 
             //fill the filter by box on the site
-            applist.forEach(app => {
+            apps.forEach(app => {
                 if (!appcategories.includes(appinfo[app]["category"])) {
                     appcategories.push(appinfo[app]["category"])
                 }
@@ -96,7 +135,7 @@ getMode().then(function(modedata) {
 
             function appfilter() {
 
-                applist.forEach(app => {
+                apps.forEach(app => {
                     document.getElementById(`app-box-${app}`).style.display = "block";
                 })
 
@@ -104,9 +143,9 @@ getMode().then(function(modedata) {
 
                 let search = searchbar.value.trim().toLowerCase();
 
-                let applisttemp = Array.from(applist) //a list of apps to be removed
+                let applisttemp = Array.from(apps) //a list of apps to be removed
 
-                applist.forEach(app => {
+                apps.forEach(app => {
 
                     if (filter == "All" || appinfo[app]["category"] == filter) {
                         let indexofapp = applisttemp.indexOf(app);
@@ -148,10 +187,11 @@ getMode().then(function(modedata) {
 
                 appcontainer.innerHTML = "";
 
-                if (sortvalue == "PopularityH-L") {applist.sort((a,b) =>  appinfo[b]["popularity"] - appinfo[a]["popularity"])}
-                else if (sortvalue == "PopularityL-H") {applist.sort((a,b) =>  appinfo[a]["popularity"] - appinfo[b]["popularity"])}
-                else if (sortvalue == "AlphabeticalA-Z") {applist.sort()}
-                else if (sortvalue == "AlphabeticalZ-A") {applist.sort().reverse()}
+                //reduntant for now:
+                //if (sortvalue == "PopularityH-L") {apps.sort((a,b) =>  appinfo[b]["popularity"] - appinfo[a]["popularity"])}
+                //else if (sortvalue == "PopularityL-H") {apps.sort((a,b) =>  appinfo[a]["popularity"] - appinfo[b]["popularity"])}
+                if (sortvalue == "AlphabeticalA-Z") {apps.sort()}
+                else if (sortvalue == "AlphabeticalZ-A") {apps.sort().reverse()}
 
                 fillappcontainer();
 
@@ -174,6 +214,7 @@ getMode().then(function(modedata) {
 
             //make download button not work if no apps are selected and app description green if checked
             let downloadbutton = document.getElementById("download-button")
+            let installerbutton = document.getElementById("installer-button")
 
             appcontainer.addEventListener("change", e => {
 
@@ -188,9 +229,13 @@ getMode().then(function(modedata) {
                 if (anychecked) {
                     downloadbutton.disabled = false
                     downloadbutton.style.cursor = "pointer"
+                    installerbutton.disabled = false
+                    installerbutton.style.cursor = "pointer"
                 } else {
                     downloadbutton.disabled = true
                     downloadbutton.style.cursor = "auto"
+                    installerbutton.disabled = true
+                    installerbutton.style.cursor = "auto"
                 }
             })
 
@@ -235,37 +280,30 @@ getMode().then(function(modedata) {
                 appselection.classList.toggle("hidden");
                 downloadscreen.classList.toggle("hidden");
 
-                let progress = "(0/" + (applist.length).toString() + ")"
-
-                //download every app in the gathered applist
-                for (let i=0; i<applist.length; i++) {
-
-                    let app = applist[i];
-                    let appname = appinfo[app]["name"];
-                    
-                    let text = "Installing: " + appname + progress;
-                    downloadbox.textContent = text;
-
-                    progress = " (" + (i+1).toString() + "/" + (applist.length).toString() + ")";
-                    await downloadApp(app)
-
-                    complete = false
-                    while(!complete) {}
-
-                    if (success) {
-                        text = appname + " Installed Successfully!" + progress;
-                    } else {
-                        text = appname + " Failed to Install." + progress;
+                if (e.submitter.id == "download-button") {
+                    await downloadapps(applist);
+                } else {
+                    downloadbox.textContent = "..."
+                    let r = await createInstaller(applist.join(","));
+                    if (r=="") {
+                        appselection.classList.toggle("hidden");
+                        downloadscreen.classList.toggle("hidden");            
+                        return "";
                     }
-
-                    downloadbox.textContent = text;
+                    downloadbox.textContent = "Installer successfully created!"
 
                 }
 
-                setTimeout(closeApp, 10000);
+                setTimeout(closeApp, 7000);
 
             })
 
+        }
+
+        if (mode == "static") {
+            applist = await getApplist();
+            await downloadapps(applist);
+            setTimeout(closeApp, 10000);
         }
     })
 

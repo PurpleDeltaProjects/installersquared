@@ -12,6 +12,7 @@
 #include <json11.hpp>
 #include <winhttp.h>
 #include <webview/webview.h>
+#include <portable-file-dialogs.h>
 
 
 //declaring functions, definitions below main
@@ -26,7 +27,7 @@ json11::Json get_appinfo();
 
 bool install_app(std::string name, std::string package_id, bool isadmin);
 
-void webviewsetup(json11::Json& appinfo, std::string mode, webview::webview& w);
+void webviewsetup(json11::Json& appinfo, std::string mode, webview::webview& w, std::vector<std::string> applist={}, const wchar_t* path=L"");
 
 
 
@@ -70,7 +71,7 @@ int wmain(int argc, wchar_t* argv[]) {
     //choose mode based on if the applist in app exists
     std::string mode = (applist.empty()) ? "dynamic" : "static";
 
-    webviewsetup(appinfo, mode, w);
+    webviewsetup(appinfo, mode, w, applist, argv[0]);
 
     w.run();
 
@@ -384,7 +385,7 @@ bool install_app(std::string name, std::string package_id, bool admin) {
 
 
 //this function sets up the webview gui
-void webviewsetup(json11::Json& appinfo, std::string mode, webview::webview& w) {
+void webviewsetup(json11::Json& appinfo, std::string mode, webview::webview& w, std::vector<std::string> applist, const wchar_t* path) {
 
     //gui mode string
     const std::string html = std::string("data:text/html,") + R"({{HTML}})";
@@ -396,7 +397,7 @@ void webviewsetup(json11::Json& appinfo, std::string mode, webview::webview& w) 
     //allow the javascript to know which mode to run
     w.bind("getMode", [mode](std::string a=""){return "\""+ mode + "\"";});
 
-    //allow the javascript to run apps
+    //allow the javascript to download apps
     w.bind("downloadApp", 
         [&appinfo, &w](std::string appname){
 
@@ -409,11 +410,13 @@ void webviewsetup(json11::Json& appinfo, std::string mode, webview::webview& w) 
 
             bool admin = !appinfo[app]["no-admin"].bool_value();
 
+            //runs the install on another thread to keep the ui from freezing
             std::thread([&w, admin, name, package_id]() {
                 bool success = install_app(name, package_id, admin); 
+                //runs the eval in the main thread
                 w.dispatch([&w, success]() {
-                    w.eval("complete = true");
-                    w.eval(std::string("success = ") + std::string((success) ? "true" : "false"));
+                    //runs javascript to tell it if the install worked or not
+                    w.eval(std::string("installresolve(") + std::string((success) ? "true" : "false") + std::string(")"));
                 });
                 
             }).detach();
@@ -422,10 +425,70 @@ void webviewsetup(json11::Json& appinfo, std::string mode, webview::webview& w) 
             
         });
 
+    //create the installer for the app
+    w.bind("createInstaller",
+        [path](std::string apps){
+            //opens the file in read binary mode
+            std::ifstream file(path, std::ios::binary);
+
+            //if it didnt open, return nothing
+            if (!file.is_open()) {
+                return "\"\"";
+            }
+
+            //the marker and trailer of the payload
+            std::string marker = "appliststart";
+            std::string trailer = "applistend";
+
+            //adds the dash outside of the string so that the code doesnt see the string literals above as the marker and trailer
+            marker.replace(7,0,"---");
+            trailer.replace(7,0,"---");
+
+            //converts the executable into a string
+            std::string filestring((std::istreambuf_iterator<char>(file)), std::istreambuf_iterator<char>());
+
+            //remove the [" and "] from the returned applist
+            std::string applist = apps.substr(2, apps.size() - 4);
+
+            filestring = filestring + marker + applist + trailer;
+
+            std::string installerpath = pfd::save_file(
+                "Save File",
+                "InstallerSquared.exe",
+                { "Executable Files", "*.exe"}
+            ).result();
+
+            if(!installerpath.empty()) {
+                std::ofstream file(installerpath, std::ios::binary);
+                file << filestring;
+            } else {
+                return "\"\"";
+            }
+
+            return "\"success\"";
+        });
+
     //create a function allowing the javascript to get the appinfo
     w.bind("getAppInfo", 
         [appinfo = appinfo.dump()](std::string a=""){return appinfo;}
     );
+
+    //allow the javascript to get the in app applist in static mode
+    w.bind("getApplist",
+    [applist](std::string a=""){
+        std::string applistarray = "[\"";
+
+        for (std::string app : applist) {
+            applistarray = applistarray + app + "\",\"";
+        }
+
+        applistarray.pop_back();
+        applistarray.pop_back();
+
+        std::cout << applistarray;
+
+        return applistarray + "]";
+    });
 
     w.bind("closeApp", 
         [&w](std::string a=""){w.terminate();return "";}
